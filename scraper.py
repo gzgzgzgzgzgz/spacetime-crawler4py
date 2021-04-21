@@ -4,10 +4,18 @@ from bs4 import BeautifulSoup
 
 #global variables
 
-#unique urls
+#unique urls =>expected result 1
 urls_detected = set()
+#TODO: longest page =>expected result 2
+#TODO: find 50 most common words =>expected result 3
+#TODO: find number of subdomain =>expected result 4
 
 def scraper(url, resp):
+    # need to check whether it is the subdomain
+    if resp.status >= 200 and resp.status <= 299 and resp.status != 204 and resp.raw_response is None:
+        return []
+    if not is_valid(url): return []
+
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
@@ -17,6 +25,7 @@ def extract_next_links(url, resp):
     urls_detected.add(urldefrag(url)[0])
 
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204: # 204 -> no content
+        result_file = open("result.txt", "w")
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         for link in soup.find_all('a', href=True):
             currentURL = link.get('href')
@@ -25,23 +34,18 @@ def extract_next_links(url, resp):
                 finalURL = currentURL.split('?')[0].split('#')[0]
             else:
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
-            # other traps possible
+            # TODO: Might have other things to check => could be checked in is_valid function
+            
+            # TODO: other traps possible
             if "/calendar" in finalURL:
                 finalURL = finalURL.split("/calendar", 1)[0]
             extractedLinks.add(finalURL)
+            result_file.write(finalURL)
+        result_file.close()
         return extractedLinks
-            
-            
     else:
         return []
     
-
-
-    
-    
-
-
-
 
 def is_valid(url):
     try:
