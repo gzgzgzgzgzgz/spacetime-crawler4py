@@ -1,13 +1,47 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin, urldefrag
+from bs4 import BeautifulSoup
+
+#global variables
+
+#unique urls
+urls_detected = set()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
-    # Implementation requred.
-    return list()
+    extractedLinks = set() # contains the links extracted in this round
+
+    urls_detected.add(urldefrag(url)[0])
+
+    if resp.status >= 200 and resp.status <= 299 and resp.status != 204: # 204 -> no content
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+        for link in soup.find_all('a', href=True):
+            currentURL = link.get('href')
+            # check relative path or absolute path
+            if currentLink.startswith("http") or currentLink.startswith("https"):
+                finalURL = currentURL.split('?')[0].split('#')[0]
+            else:
+                finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
+            # other traps possible
+            if "/calendar" in finalURL:
+                finalURL = finalURL.split("/calendar", 1)[0]
+            extractedLinks.add(finalURL)
+        return extractedLinks
+            
+            
+    else:
+        return []
+    
+
+
+    
+    
+
+
+
 
 def is_valid(url):
     try:
