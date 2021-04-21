@@ -70,3 +70,32 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+def is_unique(url1, url2):
+    '''
+    return true when the two input urls are different from each other, false otherwise
+    e.g. is_unique('http://www.abc.com/def', 'http://www.abc.com/def#123') -> False
+         is_unique('http://www.abc.com/def', 'http://www.abc.com/defg') -> True
+    '''
+    try:
+        parsed1 = urlparse(url1)
+        parsed2 = urlparse(url2)
+        return parsed1.netloc.lower() != parsed2.netloc.lower() or parsed1.path.lower() != parsed2.path.lower()
+    except TypeError:
+        print("TypeError")
+        raise
+
+def is_subdomain(url):
+    '''
+    return true when the input url is a subdomain of ics.uci.edu, false otherwise
+    e.g. is_subdomain('https://vision.ics.uci.edu') -> True
+    '''
+    try:
+        parsed = urlparse(url)
+        if re.match(r".*\.ics\.uci\.edu$", parsed.netloc.lower()):
+            return True
+        else:
+            return False
+    except TypeError:
+        print("TypeError for ", parsed)
+        raise
