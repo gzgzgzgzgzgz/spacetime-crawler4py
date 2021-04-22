@@ -7,8 +7,11 @@ from bs4 import BeautifulSoup
 #unique urls =>expected result 1
 urls_detected = set()
 #TODO: longest page =>expected result 2
+
 #TODO: find 50 most common words =>expected result 3
+
 #TODO: find number of subdomain =>expected result 4
+subDomain = set()
 
 def scraper(url, resp):
     # need to check whether it is the subdomain
@@ -17,6 +20,10 @@ def scraper(url, resp):
     if not is_valid(url): return []
 
     links = extract_next_links(url, resp)
+    for link in links:
+        if is_subdomain(link):
+            subDomain.add(link)
+            print("subdomain found:" + link)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
@@ -30,7 +37,7 @@ def extract_next_links(url, resp):
         for link in soup.find_all('a', href=True):
             currentURL = link.get('href')
             # check relative path or absolute path
-            if currentLink.startswith("http") or currentLink.startswith("https"):
+            if currentURL.startswith("http") or currentURL.startswith("https"):
                 finalURL = currentURL.split('?')[0].split('#')[0]
             else:
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
@@ -39,7 +46,9 @@ def extract_next_links(url, resp):
             # TODO: other traps possible
             if "/calendar" in finalURL:
                 finalURL = finalURL.split("/calendar", 1)[0]
-            extractedLinks.add(finalURL)
+            if is_valid(finalURL):
+                extractedLinks.add(finalURL)
+            print(finalURL)
             result_file.write(finalURL)
         result_file.close()
         return extractedLinks
