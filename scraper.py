@@ -126,3 +126,12 @@ def is_subdomain(url):
     except TypeError:
         print("TypeError for ", parsed)
         raise
+        
+def extract_subdomain(url):
+    if is_subdomain(url):
+        try:
+            parsed = urlparse(url)
+            return parsed.scheme.lower()+'://'+parsed.netloc.lower()
+        except TypeError:
+            print("TypeError for ", parsed)
+            raise
