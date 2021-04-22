@@ -11,27 +11,31 @@ urls_detected = set()
 #TODO: find 50 most common words =>expected result 3
 
 #TODO: find number of subdomain =>expected result 4
-subDomain = set()
+subDomain = dict()
 
 def scraper(url, resp):
     # need to check whether it is the subdomain
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204 and resp.raw_response is None:
         return []
     if not is_valid(url): return []
-    subdomain_file = open("subdomain.txt", 'w')
+    subdomain_file = open("subdomain.txt", 'a')
     links = extract_next_links(url, resp)
     for link in links:
         if is_subdomain(link):
-            subDomain.add(link)
-            subdomain_file.write(link+"\n")
-            print("subdomain found:" + link)
+            if link in subDomain:
+                subDomain[link] = subDomain[link] + 1
+            else:
+                subDomain[link] = 1
+                subdomain_file.write(link+"\n")
+                print("subdomain found:" + link + " " + subDomain[link])
+                
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
     extractedLinks = set() # contains the links extracted in this round
 
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204: # 204 -> no content
-        result_file = open("result.txt", "w")
+        result_file = open("result.txt", "a")
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         for link in soup.find_all('a', href=True):
             currentURL = link.get('href')
