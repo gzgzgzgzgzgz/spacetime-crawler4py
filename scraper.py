@@ -18,18 +18,17 @@ def scraper(url, resp):
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204 and resp.raw_response is None:
         return []
     if not is_valid(url): return []
-
+    subdomain_file = open("subdomain.txt", 'w')
     links = extract_next_links(url, resp)
     for link in links:
         if is_subdomain(link):
             subDomain.add(link)
+            subdomain_file.write(link+"\n")
             print("subdomain found:" + link)
     return [link for link in links if is_valid(link)]
 
 def extract_next_links(url, resp):
     extractedLinks = set() # contains the links extracted in this round
-
-    urls_detected.add(urldefrag(url)[0])
 
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204: # 204 -> no content
         result_file = open("result.txt", "w")
@@ -48,8 +47,10 @@ def extract_next_links(url, resp):
                 finalURL = finalURL.split("/calendar", 1)[0]
             if is_valid(finalURL):
                 extractedLinks.add(finalURL)
-            print(finalURL)
-            result_file.write(finalURL)
+                if finalURL not in urls_detected:
+                    urls_detected.add(finalURL)
+                    print(finalURL)
+                result_file.write(finalURL+"\n")
         result_file.close()
         return extractedLinks
     else:
