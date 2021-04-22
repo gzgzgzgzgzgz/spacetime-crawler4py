@@ -1,15 +1,17 @@
 import re
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
+from nltk.tokenize import RegexpTokenizer
 
 #global variables
 
 #unique urls =>expected result 1
 urls_detected = set()
 #TODO: longest page =>expected result 2
-
+# first -> url second -> number 
+longest_page = ['', 0]
 #TODO: find 50 most common words =>expected result 3
-
+words_count = dict()
 #TODO: find number of subdomain =>expected result 4
 subDomain = dict()
 
@@ -37,6 +39,13 @@ def extract_next_links(url, resp):
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204: # 204 -> no content
         result_file = open("result.txt", "a")
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+
+        if len(soup.get_text) > longest_page[1]:
+            longest_page[0] = url
+            longest_page[1] = len(soup.get_text())
+
+        #TODO Tokenizer
+        wordsCount(soup)
         for link in soup.find_all('a', href=True):
             currentURL = link.get('href')
             # check relative path or absolute path
@@ -139,3 +148,37 @@ def extract_subdomain(url):
         except TypeError:
             print("TypeError for ", parsed)
             raise
+
+def wordsCount(soup):
+    tokenizer = RegexpTokenizer(r'\w+')
+    content = tokenizer.tokenize(soup.get_text())
+    for word in content:
+        word = word.lower()
+        if word not in STOPWORDS:
+            if word not in words_count:
+                words_count[word] = 1
+            else:
+                words_count[word] += 1
+
+
+STOPWORDS = [
+	'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 
+	'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 
+	'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', 
+	"couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 
+	'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', 
+	"hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 
+	'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 
+	'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', 
+	"it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 
+	'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 
+	'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't",
+	'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 
+	'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 
+	'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", 
+	"they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 
+	'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', 
+	"what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 
+	'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd",
+	"you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', ' '
+]
