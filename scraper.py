@@ -40,6 +40,7 @@ def extract_next_links(url, resp):
                 finalURL = currentURL.split('?')[0].split('#')[0]
             else:
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
+                print("relative path final url" + finalURL)
             # TODO: Might have other things to check => could be checked in is_valid function
             
             # TODO: other traps possible
@@ -47,15 +48,14 @@ def extract_next_links(url, resp):
                 finalURL = finalURL.split("/calendar", 1)[0]
             if is_valid(finalURL):
                 extractedLinks.add(finalURL)
-                if finalURL not in urls_detected:
-                    urls_detected.add(finalURL)
-                    print(finalURL)
+                urls_detected.add(finalURL)
                 result_file.write(finalURL+"\n")
         result_file.close()
         return extractedLinks
     else:
         return []
     
+
 
 def is_valid(url):
     try:
