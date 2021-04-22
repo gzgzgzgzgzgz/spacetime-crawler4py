@@ -64,9 +64,9 @@ def extract_next_links(url, resp):
                 
             if is_valid(finalURL):
                 if simhashfinalURL not in urls_detected and simhash_filter(soup):
-                extractedLinks.add(finalURL)
-                urls_detected.add(finalURL)
-                result_file.write(finalURL+"\n")
+                    extractedLinks.add(finalURL)
+                    urls_detected.add(finalURL)
+                    result_file.write(finalURL+"\n")
         result_file.close()
         return extractedLinks
     else:
@@ -81,10 +81,10 @@ def distance(v1, v2):
     return ans
 
 def simhash_filter(soup):
-    text = soup.get_text()
+    text = filter_label(soup)
     fingerprint = Simhash((re.sub(r'[^\w]+', ' ', text)).split(" ")).value
-    for hash in simhashes:
-        if distance(fingerprint, hash) < 3:
+    for simhash_ in simhashes:
+        if distance(fingerprint, simhash_) < 3:
             return False
     simhashes.add(fingerprint)
     return True
