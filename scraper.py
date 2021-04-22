@@ -22,6 +22,7 @@ def scraper(url, resp):
     if not is_valid(url): return []
     subdomain_file = open("subdomain.txt", 'a')
     links = extract_next_links(url, resp)
+    # check subdomain
     for link in links:
         if is_subdomain(link):
             actual_subdomain = extract_subdomain(link)
@@ -31,7 +32,7 @@ def scraper(url, resp):
                 subDomain[actual_subdomain] = 1
                 subdomain_file.write(actual_subdomain+"\n")
                 
-    return [link for link in links if is_valid(link)]
+    return links
 
 def extract_next_links(url, resp):
     extractedLinks = set() # contains the links extracted in this round
@@ -53,39 +54,32 @@ def extract_next_links(url, resp):
                 finalURL = currentURL.split('?')[0].split('#')[0]
             else:
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
-                print("relative path final url" + finalURL)
             # TODO: Might have other things to check => could be checked in is_valid function
             
             # TODO: other traps possible
-            if "/calendar" in finalURL:
-                finalURL = finalURL.split("/calendar", 1)[0]
-            if "/pdf" in finalURL:
-                finalURL = finalURL.split("/pdf", 1)[0]
-            if "/event" in finalURL:
-                finalURL = finalURL.split("/event", 1)[0]
             if is_valid(finalURL):
                 extractedLinks.add(finalURL)
                 urls_detected.add(finalURL)
                 result_file.write(finalURL+"\n")
+                print(finalURL)
         result_file.close()
         return extractedLinks
     else:
         return []
     
 
-
 def is_valid(url):
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
-            return False
+        # if parsed.scheme not in set(["http", "https"]):
+        #     return False
         if not re.match(r".*(\.ics\.uci\.edu|\.cs\.uci\.edu"
                         + r"|\.informatics\.uci\.edu|\.stat\.uci\.edu)$", parsed.netloc.lower()):
             if not (re.match(r"today\.uci\.edu", parsed.netloc.lower()) and 
             re.match(r"\/department\/information_computer_sciences\/.*", parsed.path.lower())):
                 return False
         if re.match(r".*\/(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|calendar|img|image|events|event"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
@@ -121,33 +115,34 @@ def is_unique(url1, url2):
         print("TypeError")
         raise
 
-def is_subdomain(url):
-    '''
-    return true when the input url is a subdomain of ics.uci.edu, false otherwise
-    e.g. is_subdomain('https://vision.ics.uci.edu') -> True
-    '''
-    try:
-        parsed = urlparse(url)
-        if parsed.netloc.lower().startswith('www.'):
-            netloc = parsed.netloc.lower()[4:]
-        else:
-            netloc = parsed.netloc.lower()
-        if re.match(r".*\.ics\.uci\.edu$", netloc):
-            return True
-        else:
-            return False
-    except TypeError:
-        print("TypeError for ", parsed)
-        raise
+# def is_subdomain(url):
+#     '''
+#     return true when the input url is a subdomain of ics.uci.edu, false otherwise
+#     e.g. is_subdomain('https://vision.ics.uci.edu') -> True
+#     '''
+#     try:
+#         parsed = urlparse(url)
+#         if parsed.netloc.lower().startswith('www.'):
+#             netloc = parsed.netloc.lower()[4:]
+#         else:
+#             netloc = parsed.netloc.lower()
+#         if re.match(r".*\.ics\.uci\.edu$", netloc):
+#             return True
+#         else:
+#             return False
+#     except TypeError:
+#         print("TypeError for ", parsed)
+#         raise
         
 def extract_subdomain(url):
     if is_subdomain(url):
         try:
             parsed = urlparse(url)
-            return parsed.netloc.lower()
+            return parsed.scheme.lower()+'://'+parsed.netloc.lower()
         except TypeError:
             print("TypeError for ", parsed)
             raise
+
 
 def wordsCount(soup):
     tokenizer = RegexpTokenizer(r'\w+')
@@ -159,7 +154,6 @@ def wordsCount(soup):
                 words_count[word] = 1
             else:
                 words_count[word] += 1
-
 
 STOPWORDS = [
 	'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 
