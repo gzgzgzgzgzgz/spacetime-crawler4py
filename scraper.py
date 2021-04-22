@@ -102,7 +102,11 @@ def is_subdomain(url):
     '''
     try:
         parsed = urlparse(url)
-        if re.match(r".*\.ics\.uci\.edu$", parsed.netloc.lower()):
+        if parsed.netloc.lower().startswith('www.'):
+            netloc = parsed.netloc.lower()[4:]
+        else:
+            netloc = parsed.netloc.lower()
+        if re.match(r".*\.ics\.uci\.edu$", netloc):
             return True
         else:
             return False
