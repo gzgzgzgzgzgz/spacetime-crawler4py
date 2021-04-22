@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse, urljoin, urldefrag
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
+from simhash import Simhash
 
 #global variables
 
@@ -14,12 +15,14 @@ longest_page = ['', 0]
 words_count = dict()
 #TODO: find number of subdomain =>expected result 4
 subDomain = dict()
+#simhash set
+simhashes = set()
 
 def scraper(url, resp):
     # need to check whether it is the subdomain
     if resp.status >= 200 and resp.status <= 299 and resp.status != 204 and resp.raw_response is None:
         return []
-    if not is_valid(url): return []
+    print("Detecting URL: ", url)
     subdomain_file = open("subdomain.txt", 'a')
     links = extract_next_links(url, resp)
     # check subdomain
@@ -31,7 +34,7 @@ def scraper(url, resp):
             else:
                 subDomain[actual_subdomain] = 1
                 subdomain_file.write(actual_subdomain+"\n")
-                
+    subdomain_file.close()
     return links
 
 def extract_next_links(url, resp):
@@ -41,11 +44,14 @@ def extract_next_links(url, resp):
         result_file = open("result.txt", "a")
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-        if len(soup.get_text) > longest_page[1]:
+        filtered_content = filter_label(soup)
+        if len((re.sub(r'[^\w]+', ' ', filtered_content)).split(" ")) > longest_page[1]:
+            longest_page_file = open("longest_page.txt", 'w')
             longest_page[0] = url
-            longest_page[1] = len(soup.get_text())
-
-        #TODO Tokenizer
+            longest_page[1] = len((re.sub(r'[^\w]+', ' ', filtered_content)).split(" "))
+            longest_page_file.write(str(longest_page[0]))
+            longest_page_file.write(str(longest_page[1]))
+            
         wordsCount(soup)
         for link in soup.find_all('a', href=True):
             currentURL = link.get('href')
@@ -54,19 +60,46 @@ def extract_next_links(url, resp):
                 finalURL = currentURL.split('?')[0].split('#')[0]
             else:
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
-            # TODO: Might have other things to check => could be checked in is_valid function
-            
-            # TODO: other traps possible
+            finalURL = finalURL.rstrip('/')       
+                
             if is_valid(finalURL):
+                if simhashfinalURL not in urls_detected and simhash_filter(soup):
                 extractedLinks.add(finalURL)
                 urls_detected.add(finalURL)
                 result_file.write(finalURL+"\n")
-                print(finalURL)
         result_file.close()
         return extractedLinks
     else:
         return []
-    
+
+def distance(v1, v2):
+    x = (v1 ^ v2) & ((1 << 64) - 1)
+    ans = 0
+    while x:
+        ans += 1
+        x &= x - 1
+    return ans
+
+def simhash_filter(soup):
+    text = soup.get_text()
+    fingerprint = Simhash((re.sub(r'[^\w]+', ' ', text)).split(" ")).value
+    for hash in simhashes:
+        if distance(fingerprint, hash) < 3:
+            return False
+    simhashes.add(fingerprint)
+    return True
+
+
+def filter_label(soup):
+    ''' 
+    return actual html content that is filtered by BLACKLIST
+    e.g <script> <style> html label
+    '''
+    text = soup.find_all(text=True)
+    for t in text:
+        if t.parent.name not in blacklist:
+            output += '{} '.format(t)
+    return output.strip()
 
 def is_valid(url):
     try:
@@ -80,7 +113,7 @@ def is_valid(url):
                 return False
         if re.match(r".*\/(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4|calendar|img|image|events|event"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf|ppsx"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
@@ -88,7 +121,7 @@ def is_valid(url):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)\/", parsed.path.lower()):
             return False
         return not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
+            r".*\.(css|js|bmp|gif|jpe?g|ico|ppsx"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
@@ -96,43 +129,31 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+    
 
     except TypeError:
         print ("TypeError for ", parsed)
         raise
 
-def is_unique(url1, url2):
+
+def is_subdomain(url):
     '''
-    return true when the two input urls are different from each other, false otherwise
-    e.g. is_unique('http://www.abc.com/def', 'http://www.abc.com/def#123') -> False
-         is_unique('http://www.abc.com/def', 'http://www.abc.com/defg') -> True
+    return true when the input url is a subdomain of ics.uci.edu, false otherwise
+    e.g. is_subdomain('https://vision.ics.uci.edu') -> True
     '''
     try:
-        parsed1 = urlparse(url1)
-        parsed2 = urlparse(url2)
-        return parsed1.netloc.lower() != parsed2.netloc.lower() or parsed1.path.lower() != parsed2.path.lower()
+        parsed = urlparse(url)
+        if parsed.netloc.lower().startswith('www.'):
+            netloc = parsed.netloc.lower()[4:]
+        else:
+            netloc = parsed.netloc.lower()
+        if re.match(r".*\.ics\.uci\.edu$", netloc):
+            return True
+        else:
+            return False
     except TypeError:
-        print("TypeError")
+        print("TypeError for ", parsed)
         raise
-
-# def is_subdomain(url):
-#     '''
-#     return true when the input url is a subdomain of ics.uci.edu, false otherwise
-#     e.g. is_subdomain('https://vision.ics.uci.edu') -> True
-#     '''
-#     try:
-#         parsed = urlparse(url)
-#         if parsed.netloc.lower().startswith('www.'):
-#             netloc = parsed.netloc.lower()[4:]
-#         else:
-#             netloc = parsed.netloc.lower()
-#         if re.match(r".*\.ics\.uci\.edu$", netloc):
-#             return True
-#         else:
-#             return False
-#     except TypeError:
-#         print("TypeError for ", parsed)
-#         raise
         
 def extract_subdomain(url):
     if is_subdomain(url):
@@ -143,10 +164,9 @@ def extract_subdomain(url):
             print("TypeError for ", parsed)
             raise
 
-
 def wordsCount(soup):
     tokenizer = RegexpTokenizer(r'\w+')
-    content = tokenizer.tokenize(soup.get_text())
+    content = tokenizer.tokenize(filter_label(soup))
     for word in content:
         word = word.lower()
         if word not in STOPWORDS:
@@ -154,6 +174,15 @@ def wordsCount(soup):
                 words_count[word] = 1
             else:
                 words_count[word] += 1
+    print(words_count)
+    word_count_file = open("words_count.txt", "w")
+    sum = 0
+    for i,j in sorted(words_count.items(), key = lambda a: a[1]):
+        if sum < 50:
+            word_count_file.write(str(i) + " : " +  str(j) + '\n')
+        sum += 1
+    words_count.close()
+
 
 STOPWORDS = [
 	'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 
@@ -175,4 +204,16 @@ STOPWORDS = [
 	"what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 
 	'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd",
 	"you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', ' '
+]
+
+BLACKLIST = [
+    '[document]',
+    'noscript',
+    'header',
+    'html',
+    'meta',
+    'head', 
+    'input',
+    'script',
+    'style',
 ]
