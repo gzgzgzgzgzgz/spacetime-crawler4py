@@ -22,12 +22,12 @@ def scraper(url, resp):
     links = extract_next_links(url, resp)
     for link in links:
         if is_subdomain(link):
-            if link in subDomain:
-                subDomain[link] = subDomain[link] + 1
+            actual_subdomain = extract_subdomain(link)
+            if actual_subdomain in subDomain:
+                subDomain[actual_subdomain] = subDomain[actual_subdomain] + 1
             else:
-                subDomain[link] = 1
-                subdomain_file.write(link+"\n")
-                print("subdomain found:" + link + " " + subDomain[link])
+                subDomain[actual_subdomain] = 1
+                subdomain_file.write(actual_subdomain+"\n")
                 
     return [link for link in links if is_valid(link)]
 
@@ -50,6 +50,10 @@ def extract_next_links(url, resp):
             # TODO: other traps possible
             if "/calendar" in finalURL:
                 finalURL = finalURL.split("/calendar", 1)[0]
+            if "/pdf" in finalURL:
+                finalURL = finalURL.split("/pdf", 1)[0]
+            if "/event" in finalURL:
+                finalURL = finalURL.split("/event", 1)[0]
             if is_valid(finalURL):
                 extractedLinks.add(finalURL)
                 urls_detected.add(finalURL)
@@ -131,7 +135,7 @@ def extract_subdomain(url):
     if is_subdomain(url):
         try:
             parsed = urlparse(url)
-            return parsed.scheme.lower()+'://'+parsed.netloc.lower()
+            return parsed.netloc.lower()
         except TypeError:
             print("TypeError for ", parsed)
             raise
