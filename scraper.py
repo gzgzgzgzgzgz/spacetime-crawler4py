@@ -63,7 +63,7 @@ def extract_next_links(url, resp):
             finalURL = finalURL.rstrip('/')       
                 
             if is_valid(finalURL):
-                if simhashfinalURL not in urls_detected and simhash_filter(soup):
+                if finalURL not in urls_detected and simhash_filter(soup):
                     extractedLinks.add(finalURL)
                     urls_detected.add(finalURL)
                     result_file.write(finalURL+"\n")
@@ -95,9 +95,10 @@ def filter_label(soup):
     return actual html content that is filtered by BLACKLIST
     e.g <script> <style> html label
     '''
+    output = ''
     text = soup.find_all(text=True)
     for t in text:
-        if t.parent.name not in blacklist:
+        if t.parent.name not in BLACKLIST:
             output += '{} '.format(t)
     return output.strip()
 
@@ -181,7 +182,7 @@ def wordsCount(soup):
         if sum < 50:
             word_count_file.write(str(i) + " : " +  str(j) + '\n')
         sum += 1
-    words_count.close()
+    word_count_file.close()
 
 
 STOPWORDS = [
