@@ -64,8 +64,13 @@ def extract_next_links(url, resp):
                 
             if is_valid(finalURL) and finalURL not in urls_detected:
                 # check similarity
-                finalURL_content = urlopen(finalURL).read()
-                finalURL_soup = BeautifulSoup(finalURL_content, "html.parser")
+                try:
+                    finalURL_content = urlopen(finalURL,timeout = 4).read()
+                    finalURL_soup = BeautifulSoup(finalURL_content, "html.parser")
+                except:
+                    result_file.close()
+                    print("URL 404 or time out, jump to the next URL")
+                    return extractedLinks
                 if simhash_filter(finalURL_soup):
                     # print("enter here with url", finalURL, "simhashes:", simhashes)
                     extractedLinks.add(finalURL)
