@@ -44,13 +44,12 @@ def extract_next_links(url, resp):
         result_file = open("result.txt", "a")
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-        filtered_content = filter_label(soup)
-        if len((re.sub(r'[^\w]+', ' ', filtered_content)).split(" ")) > longest_page[1]:
+        text = filter_text(soup)
+        if len(text) > longest_page[1]:
             longest_page_file = open("longest_page.txt", 'w')
             longest_page[0] = url
-            longest_page[1] = len((re.sub(r'[^\w]+', ' ', filtered_content)).split(" "))
-            longest_page_file.write(str(longest_page[0]))
-            longest_page_file.write(str(longest_page[1]))
+            longest_page[1] = len(text)
+            longest_page_file.write(str(longest_page[0]) + " " +  str(longest_page[1])) 
             
         wordsCount(soup)
         for link in soup.find_all('a', href=True):
@@ -81,7 +80,7 @@ def distance(v1, v2):
     return ans
 
 def simhash_filter(soup):
-    text = filter_label(soup)
+    text = filter_text(soup)
     fingerprint = Simhash((re.sub(r'[^\w]+', ' ', text)).split(" ")).value
     for simhash_ in simhashes:
         if distance(fingerprint, simhash_) < 3:
@@ -89,24 +88,14 @@ def simhash_filter(soup):
     simhashes.add(fingerprint)
     return True
 
+# return a list of text after filtered
+def filter_text(soup):
+    return re.findall(r'[a-zA-Z0-9][-@\/:a-zA-Z0-9]+[a-zA-Z0-9]', soup.get_text())
 
-def filter_label(soup):
-    ''' 
-    return actual html content that is filtered by BLACKLIST
-    e.g <script> <style> html label
-    '''
-    output = ''
-    text = soup.find_all(text=True)
-    for t in text:
-        if t.parent.name not in BLACKLIST:
-            output += '{} '.format(t)
-    return output.strip()
 
 def is_valid(url):
     try:
         parsed = urlparse(url)
-        # if parsed.scheme not in set(["http", "https"]):
-        #     return False
         if not re.match(r".*(\.ics\.uci\.edu|\.cs\.uci\.edu"
                         + r"|\.informatics\.uci\.edu|\.stat\.uci\.edu)$", parsed.netloc.lower()):
             if not (re.match(r"today\.uci\.edu", parsed.netloc.lower()) and 
@@ -166,8 +155,7 @@ def extract_subdomain(url):
             raise
 
 def wordsCount(soup):
-    tokenizer = RegexpTokenizer(r'\w+')
-    content = tokenizer.tokenize(filter_label(soup))
+    content = filter_text(soup)
     for word in content:
         word = word.lower()
         if word not in STOPWORDS:
@@ -175,10 +163,10 @@ def wordsCount(soup):
                 words_count[word] = 1
             else:
                 words_count[word] += 1
-    print(words_count)
+    # print(words_count)
     word_count_file = open("words_count.txt", "w")
     sum = 0
-    for i,j in sorted(words_count.items(), key = lambda a: a[1]):
+    for i,j in sorted(words_count.items(), key = lambda a: a[1], reverse=True):
         if sum < 50:
             word_count_file.write(str(i) + " : " +  str(j) + '\n')
         sum += 1
@@ -205,16 +193,4 @@ STOPWORDS = [
 	"what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 
 	'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd",
 	"you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', ' '
-]
-
-BLACKLIST = [
-    '[document]',
-    'noscript',
-    'header',
-    'html',
-    'meta',
-    'head', 
-    'input',
-    'script',
-    'style',
 ]
