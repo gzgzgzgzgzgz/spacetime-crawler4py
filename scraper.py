@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urlparse, urljoin, urldefrag
+from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 from simhash import Simhash
@@ -20,7 +21,7 @@ simhashes = set()
 
 def scraper(url, resp):
     # need to check whether it is the subdomain
-    if resp.status >= 200 and resp.status <= 299 and resp.status != 204 and resp.raw_response is None:
+    if resp.status < 200 or resp.status > 299 or resp.status == 204 or resp.raw_response is None:
         return []
     print("Detecting URL: ", url)
     subdomain_file = open("subdomain.txt", 'a')
@@ -61,8 +62,12 @@ def extract_next_links(url, resp):
                 finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
             finalURL = finalURL.rstrip('/')       
                 
-            if is_valid(finalURL):
-                if finalURL not in urls_detected and simhash_filter(soup):
+            if is_valid(finalURL) and finalURL not in urls_detected:
+                # check similarity
+                finalURL_content = urlopen(finalURL).read()
+                finalURL_soup = BeautifulSoup(finalURL_content, "html.parser")
+                if simhash_filter(finalURL_soup):
+                    # print("enter here with url", finalURL, "simhashes:", simhashes)
                     extractedLinks.add(finalURL)
                     urls_detected.add(finalURL)
                     result_file.write(finalURL+"\n")
@@ -80,10 +85,9 @@ def distance(v1, v2):
     return ans
 
 def simhash_filter(soup):
-    text = filter_text(soup)
-    fingerprint = Simhash((re.sub(r'[^\w]+', ' ', text)).split(" ")).value
+    fingerprint = Simhash(soup.get_text(), reg = r"[a-zA-Z0-9][-@\/:a-zA-Z0-9]+[a-zA-Z0-9]").value
     for simhash_ in simhashes:
-        if distance(fingerprint, simhash_) < 3:
+        if distance(fingerprint, simhash_) < 1:
             return False
     simhashes.add(fingerprint)
     return True
@@ -163,7 +167,6 @@ def wordsCount(soup):
                 words_count[word] = 1
             else:
                 words_count[word] += 1
-    # print(words_count)
     word_count_file = open("words_count.txt", "w")
     sum = 0
     for i,j in sorted(words_count.items(), key = lambda a: a[1], reverse=True):
