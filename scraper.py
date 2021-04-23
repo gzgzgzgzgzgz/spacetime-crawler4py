@@ -87,7 +87,7 @@ def distance(v1, v2):
 def simhash_filter(soup):
     fingerprint = Simhash(soup.get_text(), reg = r"[a-zA-Z0-9][-@\/:a-zA-Z0-9]+[a-zA-Z0-9]").value
     for simhash_ in simhashes:
-        if distance(fingerprint, simhash_) < 1:
+        if distance(fingerprint, simhash_) < 3:
             return False
     simhashes.add(fingerprint)
     return True
