@@ -8,6 +8,7 @@ def download(url, config, logger=None):
     host, port = config.cache_server
     resp = requests.get(
         f"http://{host}:{port}/",
+        timeout = 4,
         params=[("q", f"{url}"), ("u", f"{config.user_agent}")])
     if resp:
         return Response(cbor.loads(resp.content))

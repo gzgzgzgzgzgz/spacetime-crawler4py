@@ -24,7 +24,7 @@ def scraper(url, resp):
     if resp.status < 200 or resp.status > 299 or resp.status == 204 or resp.raw_response is None:
         return []
     print("Detecting URL: ", url)
-    subdomain_file = open("subdomain.txt", 'a')
+    subdomain_file = open("subdomain.txt", 'w')
     links = extract_next_links(url, resp)
     # check subdomain
     for link in links:
@@ -34,7 +34,8 @@ def scraper(url, resp):
                 subDomain[actual_subdomain] = subDomain[actual_subdomain] + 1
             else:
                 subDomain[actual_subdomain] = 1
-                subdomain_file.write(actual_subdomain+"\n")
+    for link, times in subDomain.items():
+        subdomain_file.write(link+" "+str(times)+"\n")
     subdomain_file.close()
     return links
 
@@ -121,7 +122,7 @@ def is_valid(url):
             return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico|ppsx"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
+            + r"|png|tiff?|mid|mp2|mp3|mp4|txt"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
@@ -158,7 +159,7 @@ def extract_subdomain(url):
     if is_subdomain(url):
         try:
             parsed = urlparse(url)
-            return parsed.scheme.lower()+'://'+parsed.netloc.lower()
+            return parsed.netloc.lower()
         except TypeError:
             print("TypeError for ", parsed)
             raise
@@ -167,7 +168,7 @@ def wordsCount(soup):
     content = filter_text(soup)
     for word in content:
         word = word.lower()
-        if word not in STOPWORDS:
+        if word not in STOPWORDS and not word.isnumeric():
             if word not in words_count:
                 words_count[word] = 1
             else:
@@ -182,7 +183,7 @@ def wordsCount(soup):
 
 
 STOPWORDS = [
-	'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 
+	'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'will',
 	'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 
 	'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', 
 	"couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 
