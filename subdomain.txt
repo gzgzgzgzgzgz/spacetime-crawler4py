@@ -1,51 +1,66 @@
-https://mds.ics.uci.edu
-https://statconsulting.ics.uci.edu
-https://futurehealth.ics.uci.edu
-https://unite.ics.uci.edu
-https://ngs.ics.uci.edu
-https://mds.ics.uci.edu
-https://statconsulting.ics.uci.edu
-https://tippersweb.ics.uci.edu
-http://coronavirustwittermap.ics.uci.edu
-https://intranet.ics.uci.edu
-http://keys.ics.uci.edu
-https://swiki.ics.uci.edu
-https://support.ics.uci.edu
-https://ngs.ics.uci.edu
-https://mds.ics.uci.edu
-https://statconsulting.ics.uci.edu
-https://futurehealth.ics.uci.edu
-https://mse.ics.uci.edu
-http://mhcid.ics.uci.edu
-http://sdcl.ics.uci.edu
-https://mse.ics.uci.edu
-http://mhcid.ics.uci.edu
-https://mswe.ics.uci.edu
-https://jgarcia.ics.uci.edu
-http://malek.ics.uci.edu
-https://redmiles.ics.uci.edu
-https://malek.ics.uci.edu
-http://stairs.ics.uci.edu
-http://sdcl.ics.uci.edu
-https://intranet.ics.uci.edu
-https://tippersweb.ics.uci.edu
-http://checkmate.ics.uci.edu
-http://tutors.ics.uci.edu
-http://nalini.ics.uci.edu
-http://plrg.ics.uci.edu
-http://ngs.ics.uci.edu
-https://cml.ics.uci.edu
-https://mailman.ics.uci.edu
-https://chenli.ics.uci.edu
-https://mcs.ics.uci.edu
-https://cloudberry.ics.uci.edu
-https://mdogucu.ics.uci.edu
-https://mds.ics.uci.edu
-https://statconsulting.ics.uci.edu
-http://futurehealth.ics.uci.edu
-http://hombao.ics.uci.edu
-https://transformativeplay.ics.uci.edu
-https://wearablegames.ics.uci.edu
-http://evoke.ics.uci.edu
-https://evoke.ics.uci.edu
-https://aiclub.ics.uci.edu
+mds.ics.uci.edu 11
+statconsulting.ics.uci.edu 4
+tippersweb.ics.uci.edu 2
+intranet.ics.uci.edu 1
+keys.ics.uci.edu 1
+support.ics.uci.edu 1
+swiki.ics.uci.edu 1
+mdogucu.ics.uci.edu 1
+plrg.ics.uci.edu 14
+ngs.ics.uci.edu 1414
+malek.ics.uci.edu 2
+futurehealth.ics.uci.edu 2
+hombao.ics.uci.edu 1
+luci.ics.uci.edu 4
+mse.ics.uci.edu 1
+mhcid.ics.uci.edu 14
+jgarcia.ics.uci.edu 1
+sdcl.ics.uci.edu 180
+redmiles.ics.uci.edu 5
+transformativeplay.ics.uci.edu 49
+ugradforms.ics.uci.edu 1
+evoke.ics.uci.edu 38
+nalini.ics.uci.edu 6
+cert.ics.uci.edu 1
+isg.ics.uci.edu 52
+scale.ics.uci.edu 1
+cloudberry.ics.uci.edu 2
+ipubmed.ics.uci.edu 1
+asterix-gerrit.ics.uci.edu 1
+asterix.ics.uci.edu 1
+esl.ics.uci.edu 1
+dynamo.ics.uci.edu 1
+chenli.ics.uci.edu 1
+mcs.ics.uci.edu 35
+student-council.ics.uci.edu 1
+hack.ics.uci.edu 1
+wics.ics.uci.edu 260
+cwicsocal18.ics.uci.edu 10
+cbcl.ics.uci.edu 3
+sprout.ics.uci.edu 1
+aiclub.ics.uci.edu 1
+unite.ics.uci.edu 10
+cyberclub.ics.uci.edu 1
+cml.ics.uci.edu 141
+vision.ics.uci.edu 7
+create.ics.uci.edu 6
+archive.ics.uci.edu 4
+mailman.ics.uci.edu 3
+fr.ics.uci.edu 2
+acoi.ics.uci.edu 51
+grape.ics.uci.edu 2
+wearablegames.ics.uci.edu 2
+mondego.ics.uci.edu 3
+dejavu.ics.uci.edu 1
+hai.ics.uci.edu 1
+perennialpolycultures.ics.uci.edu 1
+cradl.ics.uci.edu 9
+riscit.ics.uci.edu 1
+graphics.ics.uci.edu 1
+mswe.ics.uci.edu 21
+emj.ics.uci.edu 31
+computableplant.ics.uci.edu 28
+stairs.ics.uci.edu 1
+graphmod.ics.uci.edu 1
+sli.ics.uci.edu 221
+tutors.ics.uci.edu 1
