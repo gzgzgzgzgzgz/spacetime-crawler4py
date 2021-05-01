@@ -1,0 +1,124 @@
+unique pages: 6097
+
+longest page: https://evoke.ics.uci.edu/qs-personal-data-landscapes-poster (105898 tokens)
+
+subdomain:
+mds.ics.uci.edu 11
+statconsulting.ics.uci.edu 4
+mdogucu.ics.uci.edu 1
+hombao.ics.uci.edu 1
+tippersweb.ics.uci.edu 2
+ngs.ics.uci.edu 1414
+futurehealth.ics.uci.edu 2
+mse.ics.uci.edu 1
+mhcid.ics.uci.edu 14
+mcs.ics.uci.edu 33
+intranet.ics.uci.edu 1
+swiki.ics.uci.edu 1
+keys.ics.uci.edu 1
+support.ics.uci.edu 1
+acoi.ics.uci.edu 51
+tutors.ics.uci.edu 1
+nalini.ics.uci.edu 7
+wics.ics.uci.edu 260
+aiclub.ics.uci.edu 1
+cwicsocal18.ics.uci.edu 10
+unite.ics.uci.edu 10
+hai.ics.uci.edu 1
+malek.ics.uci.edu 2
+jgarcia.ics.uci.edu 1
+stairs.ics.uci.edu 1
+transformativeplay.ics.uci.edu 49
+evoke.ics.uci.edu 39
+wearablegames.ics.uci.edu 2
+sdcl.ics.uci.edu 180
+redmiles.ics.uci.edu 5
+cradl.ics.uci.edu 9
+ugradforms.ics.uci.edu 1
+create.ics.uci.edu 6
+perennialpolycultures.ics.uci.edu 1
+mondego.ics.uci.edu 3
+dejavu.ics.uci.edu 1
+cyberclub.ics.uci.edu 1
+chenli.ics.uci.edu 12
+cloudberry.ics.uci.edu 45
+student-council.ics.uci.edu 1
+sprout.ics.uci.edu 1
+luci.ics.uci.edu 4
+isg.ics.uci.edu 52
+cert.ics.uci.edu 1
+fr.ics.uci.edu 2
+ipubmed.ics.uci.edu 1
+asterix-gerrit.ics.uci.edu 1
+scale.ics.uci.edu 7
+www.graphics.ics.uci.edu 1
+esl.ics.uci.edu 1
+asterix.ics.uci.edu 15
+dynamo.ics.uci.edu 1
+grape.ics.uci.edu 2
+plrg.ics.uci.edu 14
+cml.ics.uci.edu 141
+mailman.ics.uci.edu 3
+archive.ics.uci.edu 3
+vision.ics.uci.edu 7
+cbcl.ics.uci.edu 3
+sli.ics.uci.edu 223
+graphmod.ics.uci.edu 1
+emj.ics.uci.edu 31
+computableplant.ics.uci.edu 28
+hack.ics.uci.edu 1
+riscit.ics.uci.edu 1
+mswe.ics.uci.edu 21
+
+
+words_count:
+research : 16395
+information : 9985
+software : 9815
+says : 9217
+reply : 9141
+computer : 8938
+students : 8690
+ramesh : 8345
+student : 8272
+data : 6906
+engineering : 6597
+can : 6445
+news : 6388
+informatics : 6021
+past : 6021
+current : 5995
+uci : 5813
+science : 5769
+courses : 5742
+may : 5693
+people : 5677
+graduate : 5600
+books : 5572
+march : 5497
+design : 5463
+undergraduate : 5343
+projects : 5146
+april : 5088
+department : 4999
+january : 4927
+events : 4872
+jain : 4871
+february : 4842
+search : 4654
+new : 4532
+computing : 4463
+september : 4436
+november : 4384
+course : 4305
+december : 4275
+october : 4182
+june : 4126
+read : 4121
+one : 4031
+july : 3984
+support : 3940
+august : 3930
+systems : 3892
+university : 3866
+learning : 3793
