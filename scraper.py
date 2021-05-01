@@ -4,17 +4,16 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from nltk.tokenize import RegexpTokenizer
 from simhash import Simhash
+from urllib.error import URLError, HTTPError
+import ssl
 
 #global variables
 
 #unique urls =>expected result 1
 urls_detected = set()
-#TODO: longest page =>expected result 2
 # first -> url second -> number 
 longest_page = ['', 0]
-#TODO: find 50 most common words =>expected result 3
 words_count = dict()
-#TODO: find number of subdomain =>expected result 4
 subDomain = dict()
 #simhash set
 simhashes = set()
@@ -59,24 +58,39 @@ def extract_next_links(url, resp):
             # check relative path or absolute path
             if currentURL.startswith("http") or currentURL.startswith("https"):
                 finalURL = currentURL.split('?')[0].split('#')[0]
+            elif currentURL.startswith('//'):
+                finalURL = 'http:'+currentURL
+            elif currentURL != '' and currentURL is not None and currentURL[0] == '/':
+                finalURL = urlparse(url).scheme+'://'+urlparse(url).netloc.lower()+currentURL
             else:
-                finalURL = urljoin(currentURL, url).split('?')[0].split('#')[0] #relative path
-            finalURL = finalURL.rstrip('/')       
+                if url[-1] != '/':
+                    url += '/'
+                finalURL = urljoin(url, currentURL).split('?')[0].split('#')[0] #relative path
+            finalURL = finalURL.rstrip('/')
+
+
+            try:
+                # ssl._create_default_https_context = ssl._create_unverified_context
+                if is_valid(finalURL) and is_valid(urlopen(finalURL).geturl()) and finalURL not in urls_detected:
+                    # check similarity
+                    try:
+                        finalURL_content = urlopen(finalURL,timeout = 4).read()
+                        finalURL_soup = BeautifulSoup(finalURL_content, "html.parser")
+                    except:
+                        result_file.close()
+                        print("URL 404 or time out, jump to the next URL")
+                        return extractedLinks
+                    if simhash_filter(finalURL_soup):
+                        text_len = len(re.findall(r'[a-zA-Z0-9][-@\/:a-zA-Z0-9]+[a-zA-Z0-9]', finalURL_soup.get_text()))
+                        num_len = len(re.findall(r'[0-9]+', finalURL_soup.get_text()))
+                        if num_len<text_len:
+                            extractedLinks.add(finalURL)
+                            urls_detected.add(finalURL)
+                            result_file.write(finalURL+"\n")
+            except:
+                with open('error.txt', 'a') as outfile:
+                    outfile.write('except: '+finalURL)
                 
-            if is_valid(finalURL) and finalURL not in urls_detected:
-                # check similarity
-                try:
-                    finalURL_content = urlopen(finalURL,timeout = 4).read()
-                    finalURL_soup = BeautifulSoup(finalURL_content, "html.parser")
-                except:
-                    result_file.close()
-                    print("URL 404 or time out, jump to the next URL")
-                    return extractedLinks
-                if simhash_filter(finalURL_soup):
-                    # print("enter here with url", finalURL, "simhashes:", simhashes)
-                    extractedLinks.add(finalURL)
-                    urls_detected.add(finalURL)
-                    result_file.write(finalURL+"\n")
         result_file.close()
         return extractedLinks
     else:
@@ -117,7 +131,7 @@ def is_valid(url):
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|thmx|mso|arff|rtf|jar|csv|odc"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)\/", parsed.path.lower()):
             return False
         return not re.match(
@@ -125,10 +139,10 @@ def is_valid(url):
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|odc"
+            + r"|epub|dll|cnf|tgz|sha1|nb|Z|in|sas|"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz|java|apk|war|img|sql)$", parsed.path.lower())
     
 
     except TypeError:
@@ -176,7 +190,7 @@ def wordsCount(soup):
     word_count_file = open("words_count.txt", "w")
     sum = 0
     for i,j in sorted(words_count.items(), key = lambda a: a[1], reverse=True):
-        if sum < 50:
+        if sum < 100:
             word_count_file.write(str(i) + " : " +  str(j) + '\n')
         sum += 1
     word_count_file.close()
